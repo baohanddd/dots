@@ -27,6 +27,12 @@
     <ClInclude Include="dots.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="matrix.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="bmp.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -36,6 +42,21 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="dots.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="bin2hex.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="matrix.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="hex2mat.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="bmp.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="rgb.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

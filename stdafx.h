@@ -11,8 +11,15 @@
 // Windows 头文件:
 #include <windows.h>
 #include <stdio.h>
+#include <tchar.h>
+#include <string.h> // require `_strrev`
+#include <math.h>	// require `pow`
+#include <malloc.h>
+#include <stdlib.h>
 
 
 
 // TODO: 在此处引用程序需要的其他头文件
 #include "dots.h"
+#include "matrix.h"
+#include "bmp.h"
