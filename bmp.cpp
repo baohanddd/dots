@@ -1,27 +1,5 @@
 #include "stdafx.h"
 
-PALLET matrixFromFile(wchar_t *filename)
-{
-	FILE file, *fp = &file;
-	PALLET pallet, *pal = &pallet;
-	if (fopen(filename, fp) > 0) {
-		wprintf(L"Can not open %s", filename);
-		return;
-	}
-	if (getPallet(pal, fp) > 0) {
-		wprintf(L"Can not get pallet from %s", filename);
-		return;
-	}
-	fclose(fp);
-	return pallet;
-}
-
-int fopen(const wchar_t *filename, FILE *fp)
-{
-	if (_wfopen_s(&fp, filename, L"rb") > 0) return 3;
-	return 0;
-}
-
 int getPallet(PALLET* pal, FILE* fp) {
 	if (getHeader(&pal->header, fp) == 0) return 3;
 	if (isBMP(&pal->header) == 0) return 4;

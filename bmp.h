@@ -44,6 +44,6 @@ int getMatrix(const PALLET *pal, Matrix *dm);
 void freeMatrix(Matrix *dm);
 void dotmat2File(const Matrix *dm, FILE* fp);
 
-PALLET matrixFromFile(wchar_t *filename);
+int matrixFromFile(wchar_t *filename, Matrix *mat);
 
 #endif

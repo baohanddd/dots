@@ -18,6 +18,7 @@ typedef struct {
 	size_t h;
 } FontSize;
 
+extern DOTS_API void say_hello();
 extern DOTS_API char* matrix2hex(const Matrix*);
 extern DOTS_API int initMatrix(Matrix *mat, size_t m, size_t n);
 extern DOTS_API Matrix hex2mat(char hex[], FontSize *size);
