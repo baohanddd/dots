@@ -1,0 +1,1 @@
+dots_debug.exe matrix E:\yellow_font.bmp E:\green_font.txt 0x00F802 100
