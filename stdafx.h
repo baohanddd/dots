@@ -23,3 +23,6 @@
 #include "dots.h"
 #include "matrix.h"
 #include "bmp.h"
+#include "carve.h"
+#include "ocrt.h"
+#include "tools.h"
