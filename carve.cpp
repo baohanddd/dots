@@ -1,10 +1,10 @@
 #include "stdafx.h"
 
 int
-carve(DOTMATRIX* dm, FontSize* size, Font* fonts, size_t* found)
+carve(Matrix* dm, FontSize* size, Matrix* fonts, size_t* found)
 {
 	DotMatrixPot     pot = { 0, 0 }, prev = pot, *start = &pot;
-	DotMatrixRange  *range;
+	DotMatrixRange  dotMatrixRange;
 	DotMatrixRange **ranges;
 	size_t n_range = 100, c_range = 0;
 
@@ -12,13 +12,13 @@ carve(DOTMATRIX* dm, FontSize* size, Font* fonts, size_t* found)
 
 	do {
 		prev = *start;
-		carveRange(dm, start, size, range);
+		dotMatrixRange = carveRange(dm, start, size);
 		if (n_range == c_range) { printf("The number of blocks of range has reached maximum\n"); return 4; }
-		ranges[c_range++] = range;
+		ranges[c_range++] = &dotMatrixRange;
 	} while (dmpCmp(&prev, start));
 
 	for (size_t i = 0; i < c_range; ++i) {
-		carveFont(dm, ranges[i], fonts, size, found);
+		fonts = carveFont(dm, ranges[i], size, found);
 		free(ranges[i]);
 	}
 
@@ -46,40 +46,48 @@ count(DotMatrixRange* range, FontSize *size)
 	return c;
 }
 
-static int
-carveRange(DOTMATRIX* dm, DotMatrixPot* start, FontSize *size, DotMatrixRange* range)
+DotMatrixRange
+carveRange(Matrix* dm, DotMatrixPot* start, FontSize *size)
 {
-	if ((range = (DotMatrixRange*)malloc(sizeof(DotMatrixRange))) == NULL) return 3;
+	DotMatrixRange range;
 
+	printf("mat->c = %d\n", dm->c);
+	printf("mat->r = %d\n", dm->r);
+	
+	print(start);
 	dmpScanLH(dm, start);
-	range->cpl = dmpScanLV(dm, start, size);
-	range->cpr = dmpScanRV(dm, start, size);
-	return 0;
+	print(start);
+	// range.cpl = *start;
+	range.cpr = *start;
+	range.cpl = dmpScanLV(dm, start, size);
+	//range.cpr = dmpScanRV(dm, start, size);
+	return range;
 }
 
-static int
-carveFont(DOTMATRIX *dm, DotMatrixRange* range, Font* fonts, FontSize *size, size_t* found)
+Matrix*
+carveFont(Matrix *dm, DotMatrixRange* range, FontSize *size, size_t* found)
 {
-	Font* font;
+	Matrix *fonts;
+	Matrix* font;
 	DotMatrixPot pot;
-	DOTMATRIX* dots;
+	Matrix matrix, *dots = &matrix;
 	size_t n = count(range, size), c, i, j;
-	if (n <= 0) return 2;
-	if ((fonts = (Font*)malloc(sizeof(Font)*n)) == NULL) return 3;
+	if (n <= 0) return NULL;
+	if ((fonts = (Matrix*)malloc(sizeof(Matrix)*n)) == NULL) return NULL;
 	pot.c = range->cpl.c;
 	pot.r = range->cpr.r;
 	*found = 0;
 	for (c = 0; pot.c < range->cpr.c; ++c, pot.c += size->w) {
 		font = &fonts[c];
-		if (DotMatrix(&pot, &(range->cpr), dm, dots) != 0) return 4;
+		if (DotMatrix(&pot, &(range->cpr), dm, dots) != 0) return NULL;
 		font = dots;
 		++(*found);
 	}
-	return 0;
+	return fonts;
 }
 
 static int
-DotMatrix(DotMatrixPot* corner, DotMatrixPot* bottom, const DOTMATRIX* dm, DOTMATRIX* odm)
+DotMatrix(DotMatrixPot* corner, DotMatrixPot* bottom, const Matrix* dm, Matrix* odm)
 {
 	odm->r = bottom->r - corner->r;
 	odm->c = bottom->c - corner->c;
@@ -97,7 +105,7 @@ DotMatrix(DotMatrixPot* corner, DotMatrixPot* bottom, const DOTMATRIX* dm, DOTMA
 }
 
 static void
-dmpScanLH(DOTMATRIX *dm, DotMatrixPot* start)	// scan dot matrix to left by horizontal
+dmpScanLH(Matrix *dm, DotMatrixPot* start)	// scan dot matrix to left by horizontal
 {
 	for (; start->r < dm->r; ++start->r) {
 		for (; start->c < dm->c; ++start->c) { if (dm->map[start->r][start->c] == 1)  return; }
@@ -106,11 +114,11 @@ dmpScanLH(DOTMATRIX *dm, DotMatrixPot* start)	// scan dot matrix to left by hori
 }
 
 static DotMatrixPot
-dmpScanLV(DOTMATRIX *dm, DotMatrixPot* start, const FontSize* size)
+dmpScanLV(const Matrix *dm, DotMatrixPot* start, const FontSize* size)
 {
-	DotMatrixPot pot;
+	DotMatrixPot pot; pot.c = 0; pot.r = 0;
 	size_t i, j = start->c, stop = size->h + start->r;
-	if (dm->r < stop || dm->c == start->c) return;
+	if (dm->r < stop || dm->c == start->c) return pot;
 
 	for (i = start->r; start->r < stop; ++i) {
 		if (j == 0) break;
@@ -123,7 +131,7 @@ dmpScanLV(DOTMATRIX *dm, DotMatrixPot* start, const FontSize* size)
 }
 
 static DotMatrixPot
-dmpScanRV(DOTMATRIX *dm, const DotMatrixPot* start, const FontSize* size)
+dmpScanRV(Matrix *dm, const DotMatrixPot* start, const FontSize* size)
 {
 	DotMatrixPot pot;
 	size_t limit = 0;
@@ -143,4 +151,31 @@ ENDMAT:
 	pot.r = start->r + size->h;
 	pot.c = j - limit;
 	return pot;
+}
+
+static void
+print(DotMatrixPot *pot)
+{
+	printf("start->r = %d, start->c = %d\n", pot->r, pot->c);
+}
+
+static void
+print(DotMatrixRange *range)
+{
+	printf("Range->cpl:\n");
+	print(&range->cpl);
+	printf("Range->cpr:\n");
+	print(&range->cpr);
+}
+
+static void
+print(Matrix *mat)
+{
+	printf("mat->c = %d\n", mat->c);
+	printf("mat->r = %d\n", mat->r);
+
+	for (size_t i = 0; i < mat->r; ++i) {
+		for (size_t j = 0; j < mat->c; ++j) printf("%d", mat->map[i][j]);
+		printf("\n");
+	}
 }

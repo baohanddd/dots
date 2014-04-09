@@ -6,7 +6,7 @@ RGB _tchar2RGB(_TCHAR* hexstr) {
 	color.red = ((hex >> 16) & 0xFF);    // Extract the RR byte
 	color.green = ((hex >> 8) & 0xFF);   // Extract the GG byte
 	color.blue = ((hex)& 0xFF);          // Extract the BB byte
-
+	// printf("color.red = %d, color.green = %d, color.blue = %d.\n", color.red, color.green, color.blue);
 	return color;
 }
 

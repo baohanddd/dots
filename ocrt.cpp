@@ -73,16 +73,19 @@ void BMP2RGB(_TCHAR *bmp, _TCHAR *au) {
 	printf("Program finished.\n");
 }
 
-void BMP2DotMatrix(_TCHAR* bmp, _TCHAR* op, _TCHAR* hex, _TCHAR* variation) {
+extern DOTS_API void BMP2DotMatrix(_TCHAR* bmp, _TCHAR* op, _TCHAR* hex, _TCHAR* variation) {
 	PALLET pal;
-	DOTMATRIX dm, odm;
-	DOTMATRIX* font;
-	DOTMATRIXPOT start, corner, end;
-	FONTSIZE fs;
+	Matrix dm, odm;
+	Matrix *fonts;
+	DotMatrixPot start, corner, end;
+	start.r = start.c = 0;
+	FontSize fs, *size = &fs; size->h = size->w = 12;
 	FILE* fp;
+	size_t found;
+	DotMatrixRange range;
+
 	wchar_t* stopword;
 	double tolerance = wcstod(variation, &stopword);
-	fs.h = fs.w = 12;
 
 	if (_wfopen_s(&fp, bmp, L"rb") > 0) {
 		wprintf(L"Can not open file: %s\n", bmp);
@@ -96,8 +99,7 @@ void BMP2DotMatrix(_TCHAR* bmp, _TCHAR* op, _TCHAR* hex, _TCHAR* variation) {
 
 	thresholding(&pal, &_tchar2RGB(hex), tolerance);
 
-	dmInit(&pal);
-	if (getMatrix() > 0) {
+	if (getMatrix(&pal, &dm) != 0) {
 		printf("Can not read dot matrix from pallet\n");
 		return;
 	}
@@ -109,6 +111,7 @@ void BMP2DotMatrix(_TCHAR* bmp, _TCHAR* op, _TCHAR* hex, _TCHAR* variation) {
 		wprintf(L"Can not open file: %s\n", op);
 		return;
 	}
+
 	/*
 	start.r = start.c = 0;
 	start = matSanH(&dm, &start);
@@ -119,13 +122,22 @@ void BMP2DotMatrix(_TCHAR* bmp, _TCHAR* op, _TCHAR* hex, _TCHAR* variation) {
 	printf("corner.c = %d\n", corner.c);
 	end = reMatSanV(&dm, &start, &fs);
 	*/
-	// matCarve(&corner, &end, &dm, &odm, &fs);
-	// dotmat2File(fp);
-	// matCarveByChar(&odm, font, &fs);
 
-	freeMatrix();
-	// freeMatrix(&odm);
+	// if(carve(&dm, size, &fonts, &found) != 0) goto ERR;
+	range = carveRange(&dm, &start, size);
+	//fonts = carveFont(&dm, range, size, &found);
+	//if(fonts != NULL) goto ERR;
+	//matCarve(&corner, &end, &dm, &odm, &fs);
+	// dotmat2File(fonts, fp);
+	//matCarveByChar(&odm, font, &fs);
+
+	//freeMatrix();
+	freeMatrix(&dm);
 	fclose(fp);
 
 	printf("Program finished.\n");
+	return;
+
+ERR:
+	printf("Fails to carve.\n");
 }

@@ -37,8 +37,8 @@ int _hex2int(const TCHAR *value);
 
 int						/* O - 0 = Out of fault tolerant, 1 = Inside of fault tolerant */
 color_cmp(RGB *one,		/* I - One color */
-RGB	*other,			/* I - Other color */
-double variation);  /* I - fault tolerant */
+RGB	*other,				/* I - Other color */
+double variation);		/* I - fault tolerant */
 
 int getMatrix(const PALLET *pal, Matrix *dm);
 void freeMatrix(Matrix *dm);

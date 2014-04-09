@@ -33,6 +33,15 @@
     <ClInclude Include="bmp.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="carve.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ocrt.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="tools.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -57,6 +66,15 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="rgb.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="carve.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ocrt.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="tools.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

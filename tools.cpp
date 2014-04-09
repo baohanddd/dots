@@ -12,10 +12,11 @@ rgb2file(PALLET* pal, FILE* fp) {
 
 void
 thresholding(PALLET* pal,		/* I - pallet consist with many colors */
-RGB *base,					/* I - base color */
-double variation)			/* I - fault tolerant */
+RGB *base,						/* I - base color */
+double variation)				/* I - fault tolerant */
 {
 	RGB *other;
+	printf("variation = %f\n", variation);
 	size_t points = pal->info->bmiHeader.biSizeImage / sizeof(RGB);
 	for (size_t i = 0; i < points; ++i) {
 		other = &pal->colors[i];
