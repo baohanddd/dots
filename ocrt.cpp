@@ -75,7 +75,7 @@ void BMP2RGB(_TCHAR *bmp, _TCHAR *au) {
 
 extern DOTS_API void BMP2DotMatrix(_TCHAR* bmp, _TCHAR* op, _TCHAR* hex, _TCHAR* variation) {
 	PALLET pal;
-	Matrix dm, odm;
+	Matrix dm, odm, block;
 	Fonts fonts;
 	DotMatrixPot start, corner, end;
 	start.r = start.c = 0;
@@ -125,11 +125,12 @@ extern DOTS_API void BMP2DotMatrix(_TCHAR* bmp, _TCHAR* op, _TCHAR* hex, _TCHAR*
 
 	// if(carve(&dm, size, &fonts, &found) != 0) goto ERR;
 	range = carveRange(&dm, &start, size);
-	fonts = carveFont(&dm, &range, size);
+	block = carve(&dm, &range);
+	// fonts = carveFont(&dm, &range, size);
 	//if(fonts != NULL) goto ERR;
 	//matCarve(&corner, &end, &dm, &odm, &fs);
 	// dotmat2File(fonts, fp);
-	write(fp, fonts);
+	write(fp, block);
 	//matCarveByChar(&odm, font, &fs);
 
 	//freeMatrix();
