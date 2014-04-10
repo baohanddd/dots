@@ -11,9 +11,10 @@ typedef struct {
 	DotMatrixPot bottom;
 } DotMatrixRow;
 
-typedef struct {
+typedef struct DotMatrixRange {
 	DotMatrixPot cpl;	// top left
 	DotMatrixPot cpr;	// bottom right
+	DotMatrixRange *next;
 } DotMatrixRange;
 
 
@@ -22,19 +23,12 @@ typedef struct {
 	size_t num;
 } Fonts;
 
-typedef struct  { 
-	DotMatrixRange item; 
-	DotMatrixRanges *next; 
-} DotMatrixRanges;
-
-// typedef DOTMATRIX Font;
-
 int carve(Matrix* dm, FontSize* size, Matrix* fonts, size_t* found);
 Matrix carve(const Matrix*, const DotMatrixRange*);
 
 static int dmpCmp(DotMatrixPot*, DotMatrixPot*);
 
-DotMatrixRange find(const Matrix* dm, DotMatrixPot* start, const FontSize *size);
+DotMatrixRange* find(Matrix* dm, DotMatrixPot* start, FontSize *size);
 DotMatrixRange carveRange(Matrix* dm, DotMatrixPot* start, FontSize *size);
 Fonts carveFont(const Matrix *dm, DotMatrixRange* range, const FontSize *size);
 static int DotMatrix(DotMatrixPot* corner, DotMatrixPot* bottom, const Matrix* dm, Matrix* odm);

@@ -28,6 +28,8 @@ carve(Matrix* dm, FontSize* size, Fonts *fonts, size_t* found)
 
 static int
 dmpCmp(DotMatrixPot* p1, DotMatrixPot* p2) {
+	print(p1);
+	print(p2);
 	return (p1->r != p2->r) || (p2->c != p2->c);
 }
 
@@ -39,24 +41,36 @@ carveRange(Matrix* dm, DotMatrixPot* start, FontSize *size)
 	dmpScanLH(dm, start);
 	range.cpl = dmpScanLV(dm, start, size);
 	range.cpr = dmpScanRV(dm, start, size);
-	print(&range);
+	range.next = NULL;
+	// Set point for next search...
+	start->r = range.cpr.r + size->h;
+	start->c = range.cpr.c;
 	return range;
 }
 
-DotMatrixRange 
+DotMatrixRange* 
 find(Matrix* dm, DotMatrixPot* start, FontSize *size)
 {
-	DotMatrixRanges ranges;
-	DotMatrixRange range;
-	DotMatrixPot pot = { 0, 0 }, prev = pot, *start = &pot;
+	DotMatrixRange range, *head = NULL, *current, *last = &range;
+	DotMatrixPot prev;
 
 	do {
 		prev = *start;
 		range = carveRange(dm, start, size);
-		if (n_range == c_range) { printf("The number of blocks of range has reached maximum\n"); return 4; }
-		ranges[c_range++] = &dotMatrixRange;
+		
+		current = (DotMatrixRange*)malloc(sizeof(DotMatrixRange));
+		current->cpl = range.cpl;
+		current->cpr = range.cpr;
+		current->next = NULL;
+
+		if (head == NULL) head = current;
+		else last->next = current;
+		last = current;
 	} while (dmpCmp(&prev, start));
-	//return range;
+
+	printf("Output ranges:\n");
+	print(head);
+	return head;
 }
 
 Matrix 
@@ -212,10 +226,15 @@ print(DotMatrixPot *pot)
 static void
 print(DotMatrixRange *range)
 {
-	printf("Range->cpl:\n");
-	print(&range->cpl);
-	printf("Range->cpr:\n");
-	print(&range->cpr);
+	DotMatrixRange *node;
+	node = range;
+	while (node != NULL) {
+		printf("Range->cpl:\n");
+		print(&node->cpl);
+		printf("Range->cpr:\n");
+		print(&node->cpr);
+		node = node->next;
+	}
 }
 
 static void

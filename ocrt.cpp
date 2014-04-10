@@ -82,7 +82,7 @@ extern DOTS_API void BMP2DotMatrix(_TCHAR* bmp, _TCHAR* op, _TCHAR* hex, _TCHAR*
 	FontSize fs, *size = &fs; size->h = size->w = 12;
 	FILE* fp;
 	size_t found;
-	DotMatrixRange range;
+	DotMatrixRange range, *head;
 
 	wchar_t* stopword;
 	double tolerance = wcstod(variation, &stopword);
@@ -124,13 +124,15 @@ extern DOTS_API void BMP2DotMatrix(_TCHAR* bmp, _TCHAR* op, _TCHAR* hex, _TCHAR*
 	*/
 
 	// if(carve(&dm, size, &fonts, &found) != 0) goto ERR;
-	range = carveRange(&dm, &start, size);
-	block = carve(&dm, &range);
+	//range = carveRange(&dm, &start, size);
+
+	head = find(&dm, &start, size);
+	//block = carve(&dm, &range);
 	// fonts = carveFont(&dm, &range, size);
 	//if(fonts != NULL) goto ERR;
 	//matCarve(&corner, &end, &dm, &odm, &fs);
 	// dotmat2File(fonts, fp);
-	write(fp, block);
+	//write(fp, block);
 	//matCarveByChar(&odm, font, &fs);
 
 	//freeMatrix();
