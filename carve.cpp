@@ -28,8 +28,8 @@ carve(Matrix* dm, FontSize* size, Fonts *fonts, size_t* found)
 
 static int
 dmpCmp(DotMatrixPot* p1, DotMatrixPot* p2) {
-	print(p1);
-	print(p2);
+	// print(p1);
+	// print(p2);
 	return (p1->r != p2->r) || (p2->c != p2->c);
 }
 
@@ -37,14 +37,18 @@ DotMatrixRange
 carveRange(Matrix* dm, DotMatrixPot* start, FontSize *size)
 {
 	DotMatrixRange range;
+	DotMatrixPot pot = *start;
 
-	dmpScanLH(dm, start);
-	range.cpl = dmpScanLV(dm, start, size);
-	range.cpr = dmpScanRV(dm, start, size);
-	range.next = NULL;
-	// Set point for next search...
-	start->r = range.cpr.r + size->h;
-	start->c = range.cpr.c;
+	dmpScanLH(dm, start, size);
+	if(dmpCmp(&pot, start)) {
+		range.cpl = dmpScanLV(dm, start, size);
+		range.cpr = dmpScanRV(dm, start, size);
+		range.next = NULL;
+		// Set point for next search...
+		start->r = range.cpl.r;
+		start->c = range.cpr.c;
+		return range;
+	}
 	return range;
 }
 
@@ -53,6 +57,7 @@ find(Matrix* dm, DotMatrixPot* start, FontSize *size)
 {
 	DotMatrixRange range, *head = NULL, *current, *last = &range;
 	DotMatrixPot prev;
+	size_t c = 0;
 
 	do {
 		prev = *start;
@@ -66,7 +71,9 @@ find(Matrix* dm, DotMatrixPot* start, FontSize *size)
 		if (head == NULL) head = current;
 		else last->next = current;
 		last = current;
-	} while (dmpCmp(&prev, start));
+		c++;
+	} while (c < 2);
+	//} while (dmpCmp(&prev, start));
 
 	printf("Output ranges:\n");
 	print(head);
@@ -138,12 +145,34 @@ DotMatrix(DotMatrixPot* corner, DotMatrixPot* bottom, const Matrix* dm, Matrix* 
 }
 
 static void
-dmpScanLH(const Matrix *dm, DotMatrixPot* start)	// scan dot matrix to left by horizontal
+dmpScanLH(const Matrix *dm, DotMatrixPot* start, const FontSize *size)	// scan dot matrix to left by horizontal
 {
-	for (; start->r < dm->r; ++start->r) {
-		for (; start->c < dm->c; ++start->c) { if (dm->map[start->r][start->c] == 1)  return; }
-		start->c = 0;
+	printf("Start the point to found:\n");
+	print(start);
+
+	DotMatrixPot pot = *start;
+	
+	size_t col = pot.c, row_limit;
+	if(col > 0) { row_limit = pot.r + size->h; if(row_limit > dm->r) row_limit = dm->r; }
+	else row_limit = dm->r;
+
+	for (; pot.r < row_limit; ++pot.r) {
+		for (; pot.c < dm->c; ++pot.c) { 
+			if (dm->map[pot.r][pot.c] == 1)  {
+				start = &pot;
+				printf("Found top: \n");
+				print(start);
+				return; 
+			}
+		}
+		pot.c = col;	// Just search the rest of area only...
 	}
+	if(pot.r == dm->r) { pot.c = dm->c; return; }		// Reached end of matrix...
+	pot.c = 0;
+	start = &pot;
+	printf("\n\nNo found anything:\n\n");
+	print(start);
+	//dmpScanLH(dm, start, size);
 }
 
 static DotMatrixPot

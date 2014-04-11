@@ -32,7 +32,8 @@ DotMatrixRange* find(Matrix* dm, DotMatrixPot* start, FontSize *size);
 DotMatrixRange carveRange(Matrix* dm, DotMatrixPot* start, FontSize *size);
 Fonts carveFont(const Matrix *dm, DotMatrixRange* range, const FontSize *size);
 static int DotMatrix(DotMatrixPot* corner, DotMatrixPot* bottom, const Matrix* dm, Matrix* odm);
-static void dmpScanLH(const Matrix *dm, DotMatrixPot* start);
+
+static void dmpScanLH(const Matrix *dm, DotMatrixPot* start, const FontSize *size);
 static DotMatrixPot dmpScanLV(const Matrix *dm, DotMatrixPot* start, const FontSize* size);
 static DotMatrixPot dmpScanRV(const Matrix *dm, const DotMatrixPot* start, const FontSize* size);
 
