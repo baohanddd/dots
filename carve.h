@@ -23,21 +23,16 @@ typedef struct {
 	size_t num;
 } Fonts;
 
-int carve(Matrix* dm, FontSize* size, Matrix* fonts, size_t* found);
+
 Matrix carve(const Matrix*, const DotMatrixRange*);
-
-static int dmpCmp(DotMatrixPot*, DotMatrixPot*);
-
 DotMatrixRange* find(Matrix* dm, DotMatrixPot* start, FontSize *size);
-DotMatrixRange carveRange(Matrix* dm, DotMatrixPot* start, FontSize *size);
-Fonts carveFont(const Matrix *dm, DotMatrixRange* range, const FontSize *size);
-static int DotMatrix(DotMatrixPot* corner, DotMatrixPot* bottom, const Matrix* dm, Matrix* odm);
+
+static int carveRange(const Matrix* dm, DotMatrixRange *range, DotMatrixPot *start, const FontSize *size);
+static BOOL isBottom(const Matrix *dm, const DotMatrixPot *pot, const FontSize *size);
 
 static void dmpScanLH(const Matrix *dm, DotMatrixPot* start, const FontSize *size);
 static DotMatrixPot dmpScanLV(const Matrix *dm, DotMatrixPot* start, const FontSize* size);
 static DotMatrixPot dmpScanRV(const Matrix *dm, const DotMatrixPot* start, const FontSize* size);
-
-
 
 void write(FILE*, const Fonts);
 void write(FILE*, const Matrix);
@@ -51,6 +46,7 @@ static size_t height(const DotMatrixRange*);
 static size_t count(const DotMatrixRange* range, const FontSize *size);
 
 void free(Fonts fonts);
+void freeLink(DotMatrixRange *head);
 
 static size_t** arr2d(size_t m, size_t n);
 

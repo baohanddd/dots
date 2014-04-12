@@ -1,85 +1,5 @@
 #include "stdafx.h"
 
-int
-carve(Matrix* dm, FontSize* size, Fonts *fonts, size_t* found)
-{
-	DotMatrixPot     pot = { 0, 0 }, prev = pot, *start = &pot;
-	DotMatrixRange  dotMatrixRange;
-	DotMatrixRange **ranges;
-	size_t n_range = 100, c_range = 0;
-
-	if ((ranges = (DotMatrixRange**)malloc(sizeof(DotMatrixRange*)*n_range)) == NULL) return 3;
-
-	do {
-		prev = *start;
-		dotMatrixRange = carveRange(dm, start, size);
-		if (n_range == c_range) { printf("The number of blocks of range has reached maximum\n"); return 4; }
-		ranges[c_range++] = &dotMatrixRange;
-	} while (dmpCmp(&prev, start));
-
-	for (size_t i = 0; i < c_range; ++i) {
-		fonts = &carveFont(dm, ranges[i], size);
-		free(ranges[i]);
-	}
-
-	free(ranges);
-	return 0;
-}
-
-static int
-dmpCmp(DotMatrixPot* p1, DotMatrixPot* p2) {
-	// print(p1);
-	// print(p2);
-	return (p1->r != p2->r) || (p2->c != p2->c);
-}
-
-DotMatrixRange
-carveRange(Matrix* dm, DotMatrixPot* start, FontSize *size)
-{
-	DotMatrixRange range;
-	DotMatrixPot pot = *start;
-
-	dmpScanLH(dm, start, size);
-	if(dmpCmp(&pot, start)) {
-		range.cpl = dmpScanLV(dm, start, size);
-		range.cpr = dmpScanRV(dm, start, size);
-		range.next = NULL;
-		// Set point for next search...
-		start->r = range.cpl.r;
-		start->c = range.cpr.c;
-		return range;
-	}
-	return range;
-}
-
-DotMatrixRange* 
-find(Matrix* dm, DotMatrixPot* start, FontSize *size)
-{
-	DotMatrixRange range, *head = NULL, *current, *last = &range;
-	DotMatrixPot prev;
-	size_t c = 0;
-
-	do {
-		prev = *start;
-		range = carveRange(dm, start, size);
-		
-		current = (DotMatrixRange*)malloc(sizeof(DotMatrixRange));
-		current->cpl = range.cpl;
-		current->cpr = range.cpr;
-		current->next = NULL;
-
-		if (head == NULL) head = current;
-		else last->next = current;
-		last = current;
-		c++;
-	} while (c < 2);
-	//} while (dmpCmp(&prev, start));
-
-	printf("Output ranges:\n");
-	print(head);
-	return head;
-}
-
 Matrix 
 carve(const Matrix *dm, const DotMatrixRange *range)
 {
@@ -100,48 +20,51 @@ carve(const Matrix *dm, const DotMatrixRange *range)
 	return block;
 }
 
-Fonts
-carveFont(const Matrix *dm, DotMatrixRange* range, const FontSize *size)
+DotMatrixRange*
+find(Matrix* dm, DotMatrixPot* start, FontSize *size)
 {
-	Fonts fonts; fonts.num = 0;
-	Matrix matrix, *font = &matrix;
-	DotMatrixPot pot;
-	size_t n = count(range, size), c;
-	
-	if (n <= 0) return fonts;
-	if ((fonts.mat = (Matrix**)malloc(sizeof(Matrix*)*n)) == NULL) return fonts;
-	pot.c = range->cpl.c;
-	pot.r = range->cpr.r;
+	DotMatrixRange range, *head = NULL, *current, *last = &range;
 
-	for (c = 0; pot.c < range->cpr.c; ++c, pot.c += size->w) {
-		if (DotMatrix(&pot, &(range->cpr), dm, font) != 0) goto CREATE_DOTMATRIX;
-		fonts.mat[c] = font;
-		++fonts.num;
-	}
+	do {
+		if (carveRange(dm, &range, start, size) > 0) break;
 
-	return fonts;
+		current = (DotMatrixRange*)malloc(sizeof(DotMatrixRange));
+		current->cpl = range.cpl;
+		current->cpr = range.cpr;
+		current->next = NULL;
 
-CREATE_DOTMATRIX:
-	printf("Fails to create dot matrix.\n");
-	return fonts;
+		if (head == NULL) head = current;
+		else last->next = current;
+		last = current;
+
+	} while(1);
+
+	printf("Output ranges:\n");
+	print(head);
+	return head;
+}
+
+static BOOL
+isBottom(const Matrix *dm, const DotMatrixPot *pot, const FontSize *size)
+{
+	if (dm->r <= pot->r + size->h) return TRUE;
+	return FALSE;
 }
 
 static int
-DotMatrix(DotMatrixPot* corner, DotMatrixPot* bottom, const Matrix* dm, Matrix* odm)
+carveRange(const Matrix* dm, DotMatrixRange *range, DotMatrixPot *start, const FontSize *size)
 {
-	odm->r = bottom->r - corner->r;
-	odm->c = bottom->c - corner->c;
-	size_t* rows;
-	size_t i, j = 0, m = 0, n, stop = corner->r + odm->r;
-
-	if ((odm->map = (size_t**)malloc(sizeof(size_t*)* odm->r)) == NULL) return 3;
-
-	for (i = corner->r, n = 0; i < stop; ++i, n = 0) {
-		if ((rows = (size_t*)malloc(sizeof(size_t)* odm->c)) == NULL) return 3;
-		for (j = corner->c; j < bottom->c; ++j) rows[n++] = dm->map[i][j];
-		odm->map[m++] = rows;
+	dmpScanLH(dm, start, size);
+	if (!isBottom(dm, start, size)) {
+		range->cpl = dmpScanLV(dm, start, size);
+		range->cpr = dmpScanRV(dm, start, size);
+		range->next = NULL;
+		// Set point for next search...
+		start->r = range->cpl.r;
+		start->c = range->cpr.c;
+		return 0;
 	}
-	return 0;
+	return 1;	// already reached the bottom of matrix...
 }
 
 static void
@@ -150,29 +73,25 @@ dmpScanLH(const Matrix *dm, DotMatrixPot* start, const FontSize *size)	// scan d
 	printf("Start the point to found:\n");
 	print(start);
 
-	DotMatrixPot pot = *start;
-	
-	size_t col = pot.c, row_limit;
-	if(col > 0) { row_limit = pot.r + size->h; if(row_limit > dm->r) row_limit = dm->r; }
+	size_t col = start->c, row_limit;
+	if(col > 0) { row_limit = start->r + size->h; if(row_limit > dm->r) row_limit = dm->r; }
 	else row_limit = dm->r;
 
-	for (; pot.r < row_limit; ++pot.r) {
-		for (; pot.c < dm->c; ++pot.c) { 
-			if (dm->map[pot.r][pot.c] == 1)  {
-				start = &pot;
+	for (; start->r < row_limit; ++start->r) {
+		for (; start->c < dm->c; ++start->c) { 
+			if (dm->map[start->r][start->c] == 1)  {
 				printf("Found top: \n");
 				print(start);
 				return; 
 			}
 		}
-		pot.c = col;	// Just search the rest of area only...
+		start->c = col;	// Just search the rest of area only...
 	}
-	if(pot.r == dm->r) { pot.c = dm->c; return; }		// Reached end of matrix...
-	pot.c = 0;
-	start = &pot;
-	printf("\n\nNo found anything:\n\n");
+	if(isBottom(dm, start, size)) { start->c = dm->c; return; }		// Reached end of matrix...
+	start->c = 0;
+	printf("\n\nNo found anything:\n");
 	print(start);
-	//dmpScanLH(dm, start, size);
+	dmpScanLH(dm, start, size);
 }
 
 static DotMatrixPot
@@ -258,12 +177,13 @@ print(DotMatrixRange *range)
 	DotMatrixRange *node;
 	node = range;
 	while (node != NULL) {
-		printf("Range->cpl:\n");
+		printf("\nRange->cpl:\n");
 		print(&node->cpl);
 		printf("Range->cpr:\n");
 		print(&node->cpr);
 		node = node->next;
 	}
+	printf("\n");
 }
 
 static void
@@ -283,6 +203,19 @@ free(Fonts fonts)
 {
 	for (size_t i = 0; i < fonts.num; ++i) free(fonts.mat[i]);
 	free(fonts.mat);
+}
+
+void 
+freeLink(DotMatrixRange *head)
+{
+	DotMatrixRange *node, *next;
+	node = head;
+	while (node != NULL)
+	{
+		next = node->next;
+		free(node);
+		node = next;
+	}
 }
 
 void 

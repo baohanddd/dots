@@ -79,10 +79,10 @@ extern DOTS_API void BMP2DotMatrix(_TCHAR* bmp, _TCHAR* op, _TCHAR* hex, _TCHAR*
 	Fonts fonts;
 	DotMatrixPot start, corner, end;
 	start.r = start.c = 0;
-	FontSize fs, *size = &fs; size->h = size->w = 12;
+	FontSize fs, *size = &fs; size->h = size->w = 13;
 	FILE* fp;
 	size_t found;
-	DotMatrixRange range, *head;
+	DotMatrixRange range, *head, *node;
 
 	wchar_t* stopword;
 	double tolerance = wcstod(variation, &stopword);
@@ -112,30 +112,16 @@ extern DOTS_API void BMP2DotMatrix(_TCHAR* bmp, _TCHAR* op, _TCHAR* hex, _TCHAR*
 		return;
 	}
 
-	/*
-	start.r = start.c = 0;
-	start = matSanH(&dm, &start);
-	printf("start.r = %d\n", start.r);
-	printf("start.c = %d\n", start.c);
-	corner = matSanV(&dm, &start, &fs);
-	printf("corner.r = %d\n", corner.r);
-	printf("corner.c = %d\n", corner.c);
-	end = reMatSanV(&dm, &start, &fs);
-	*/
-
-	// if(carve(&dm, size, &fonts, &found) != 0) goto ERR;
-	//range = carveRange(&dm, &start, size);
-
 	head = find(&dm, &start, size);
-	//block = carve(&dm, &range);
-	// fonts = carveFont(&dm, &range, size);
-	//if(fonts != NULL) goto ERR;
-	//matCarve(&corner, &end, &dm, &odm, &fs);
-	// dotmat2File(fonts, fp);
-	//write(fp, block);
-	//matCarveByChar(&odm, font, &fs);
+	node = head;
+	while (node != NULL) {
+		block = carve(&dm, node);
+		fprintf(fp, "\n\n");
+		write(fp, block);
+		node = node->next;
+	}
 
-	//freeMatrix();
+	freeLink(head);
 	freeMatrix(&dm);
 	fclose(fp);
 
