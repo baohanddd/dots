@@ -118,6 +118,8 @@ extern DOTS_API void BMP2DotMatrix(_TCHAR* bmp, _TCHAR* op, _TCHAR* hex, _TCHAR*
 		block = carve(&dm, node);
 		fprintf(fp, "\n\n");
 		write(fp, block);
+		printf("%s\n", matrix2hex(&block));
+		freeMatrix(&block);
 		node = node->next;
 	}
 

@@ -17,5 +17,8 @@ Matrix sbin2mat(BinaryString *bs, FontSize *size);
 Matrix matrix(size_t r, size_t c);
 size_t** arr2d(size_t m, size_t n);
 
+char* matrix2hex(const Matrix *mat);
+static char bin2hex(int n);
+
 
 #endif	// __DOTS_MATRIX__

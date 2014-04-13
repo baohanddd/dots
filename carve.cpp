@@ -17,6 +17,7 @@ carve(const Matrix *dm, const DotMatrixRange *range)
 		for(size_t j = range->cpl.c; j < range->cpr.c; ++j) row[n++] = dm->map[i][j];
 		block.map[m++] = row;
 	}
+	print(&block);
 	return block;
 }
 

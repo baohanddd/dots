@@ -89,7 +89,6 @@
     <ClInclude Include="tools.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="bin2hex.cpp" />
     <ClCompile Include="bmp.cpp" />
     <ClCompile Include="carve.cpp" />
     <ClCompile Include="dllmain.cpp">

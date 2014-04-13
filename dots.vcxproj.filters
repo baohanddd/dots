@@ -53,9 +53,6 @@
     <ClCompile Include="dots.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="bin2hex.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="matrix.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
