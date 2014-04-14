@@ -21,8 +21,8 @@
 
 // TODO: 在此处引用程序需要的其他头文件
 #include "dots.h"
-#include "matrix.h"
 #include "bmp.h"
 #include "carve.h"
+#include "matrix.h"
 #include "ocrt.h"
 #include "tools.h"

@@ -39,7 +39,7 @@ void write(FILE*, const Matrix);
 
 static void print(DotMatrixPot *pot);
 static void print(DotMatrixRange *range);
-static void print(Matrix *mat);
+void print(Matrix *mat);
 
 static size_t width(const DotMatrixRange*);
 static size_t height(const DotMatrixRange*);

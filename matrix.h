@@ -6,7 +6,8 @@ typedef struct {
 	size_t len;
 } BinaryString;
 
-float matrixCmp(Matrix*, Matrix*);
+DotMatrixPot compare(Matrix*, Matrix*);
+static int next(DotMatrixPot *pot, const Matrix *img, const Matrix *font);
 void bin2hex(int n, char hex[]);
 int createMatrix(Matrix *mat);
 
@@ -20,7 +21,7 @@ size_t** arr2d(size_t m, size_t n);
 char* matrix2hex(const Matrix *mat);
 static char bin2hex(int n);
 
-void write(FILE*, const char *hex, const wchar_t *name);
+void write(FILE*, const char *hex, const char *name);
 
 
 #endif	// __DOTS_MATRIX__

@@ -1,24 +1,50 @@
 #include "stdafx.h"
 
-float 
-matrixCmp(Matrix *mat1, Matrix *mat2)
+DotMatrixPot 
+compare(Matrix *img, Matrix *font)
 {
+	DotMatrixPot pot = { 0, 0 };
 	size_t same = 0;
 	float percent = 0.0;
-	if (mat1->c != mat2->c || mat1->r != mat2->r) return percent;
-	for (size_t i = 0; i < mat1->r; ++i) {
-		for (size_t j = 0; j < mat1->c; ++j) {
-			if (mat1->map[i][j] == mat2->map[i][j]) same++;
+
+	int notMatch = 0;
+
+	size_t row_limit;
+	size_t col_limit;
+
+	if (img->c < font->c || img->r < font->r) return pot;
+
+	while (next(&pot, img, font)) {
+		notMatch = 0;
+		row_limit = pot.r + font->r;
+		col_limit = pot.c + font->c;
+		for (size_t i = pot.r; i < row_limit; ++i) {
+			if (notMatch == 1) break;
+			for (size_t j = pot.c; j < col_limit; ++j) {
+				if (img->map[i][j] != font->map[i][j]) { notMatch = 1; same = 0; break; }
+				else same++;
+			}
 		}
 	}
-	percent = same / (mat1->c * mat1->r);
-	return percent;
+
+	percent = same / (font->c * font->r);
+	if (percent < 0.9) pot.c = pot.r = 0;
+	return pot;
+}
+
+static int
+next(DotMatrixPot *pot, const Matrix *img, const Matrix *font)
+{
+	if ((pot->c + font->c) > img->c) { pot->c = 0; pot->r++; }
+	else pot->c++;
+	if ((pot->r + font->r) > img->r) return 0;
+	return 1;
 }
 
 char* matrix2hex(const Matrix *mat)
 {
 	char sbin[4], *hex;
-	int i, j, c = 0, k = 0;
+	size_t i, j, c = 0, k = 0;
 	size_t len = mat->r * mat->c / 4 + 1;
 	if ((hex = (char*)malloc(sizeof(char)*len)) == NULL) return NULL;
 
@@ -161,7 +187,7 @@ extern DOTS_API int initMatrix(Matrix *mat, size_t m, size_t n)
 	return 0;
 }
 
-void write(FILE *fp, const char *hex, const wchar_t *name)
+void write(FILE *fp, const char *hex, const char *name)
 {
-
+	fprintf(fp, "%s|%s\n", hex, name);
 }

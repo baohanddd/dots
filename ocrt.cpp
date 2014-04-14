@@ -74,6 +74,7 @@ void BMP2RGB(_TCHAR *bmp, _TCHAR *au) {
 }
 
 extern DOTS_API void BMP2DotMatrix(_TCHAR* bmp, _TCHAR* op, _TCHAR* hex, _TCHAR* variation) {
+	const unsigned int NAME_LEN = 200;
 	PALLET pal;
 	Matrix dm, odm, block;
 	Fonts fonts;
@@ -83,6 +84,7 @@ extern DOTS_API void BMP2DotMatrix(_TCHAR* bmp, _TCHAR* op, _TCHAR* hex, _TCHAR*
 	FILE* fp;
 	size_t found;
 	DotMatrixRange range, *head, *node;
+	char *mat_hex, name[NAME_LEN];
 
 	wchar_t* stopword;
 	double tolerance = wcstod(variation, &stopword);
@@ -116,9 +118,12 @@ extern DOTS_API void BMP2DotMatrix(_TCHAR* bmp, _TCHAR* op, _TCHAR* hex, _TCHAR*
 	node = head;
 	while (node != NULL) {
 		block = carve(&dm, node);
-		fprintf(fp, "\n\n");
-		write(fp, block);
-		printf("%s\n", matrix2hex(&block));
+		print(&block);
+		mat_hex = matrix2hex(&block);
+		printf("%s\n", mat_hex);
+		printf("Please input a name to describe the matrix:\n");
+		gets_s(name, NAME_LEN);
+		write(fp, mat_hex, name);
 		freeMatrix(&block);
 		node = node->next;
 	}

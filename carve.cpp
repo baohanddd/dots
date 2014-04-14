@@ -17,7 +17,7 @@ carve(const Matrix *dm, const DotMatrixRange *range)
 		for(size_t j = range->cpl.c; j < range->cpr.c; ++j) row[n++] = dm->map[i][j];
 		block.map[m++] = row;
 	}
-	print(&block);
+	// print(&block);
 	return block;
 }
 
@@ -40,8 +40,8 @@ find(Matrix* dm, DotMatrixPot* start, FontSize *size)
 
 	} while(1);
 
-	printf("Output ranges:\n");
-	print(head);
+	// printf("Output ranges:\n");
+	// print(head);
 	return head;
 }
 
@@ -71,8 +71,8 @@ carveRange(const Matrix* dm, DotMatrixRange *range, DotMatrixPot *start, const F
 static void
 dmpScanLH(const Matrix *dm, DotMatrixPot* start, const FontSize *size)	// scan dot matrix to left by horizontal
 {
-	printf("Start the point to found:\n");
-	print(start);
+	// printf("Start the point to found:\n");
+	// print(start);
 
 	size_t col = start->c, row_limit;
 	if(col > 0) { row_limit = start->r + size->h; if(row_limit > dm->r) row_limit = dm->r; }
@@ -81,8 +81,8 @@ dmpScanLH(const Matrix *dm, DotMatrixPot* start, const FontSize *size)	// scan d
 	for (; start->r < row_limit; ++start->r) {
 		for (; start->c < dm->c; ++start->c) { 
 			if (dm->map[start->r][start->c] == 1)  {
-				printf("Found top: \n");
-				print(start);
+				// printf("Found top: \n");
+				// print(start);
 				return; 
 			}
 		}
@@ -90,8 +90,8 @@ dmpScanLH(const Matrix *dm, DotMatrixPot* start, const FontSize *size)	// scan d
 	}
 	if(isBottom(dm, start, size)) { start->c = dm->c; return; }		// Reached end of matrix...
 	start->c = 0;
-	printf("\n\nNo found anything:\n");
-	print(start);
+	// printf("\n\nNo found anything:\n");
+	// print(start);
 	dmpScanLH(dm, start, size);
 }
 
@@ -187,7 +187,7 @@ print(DotMatrixRange *range)
 	printf("\n");
 }
 
-static void
+void
 print(Matrix *mat)
 {
 	printf("mat->c = %d\n", mat->c);
