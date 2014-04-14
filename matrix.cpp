@@ -17,19 +17,16 @@ matrixCmp(Matrix *mat1, Matrix *mat2)
 
 char* matrix2hex(const Matrix *mat)
 {
-	char sbin[4], *hex, bin;
+	char sbin[4], *hex;
 	int i, j, c = 0, k = 0;
 	size_t len = mat->r * mat->c / 4 + 1;
 	if ((hex = (char*)malloc(sizeof(char)*len)) == NULL) return NULL;
-	//memset(hex, 0, len);
 
 	for (i = 0; i < mat->r; ++i) {
 		for (j = 0; j < mat->c; ++j) {
 			sbin[k++] = mat->map[i][j] == 1 ? '1' : '0';
 			if (k % 4 == 0) {
-				bin = bin2hex(atoi(sbin));
-				// printf("bin = %c", bin);
-				hex[c++] = bin;
+				hex[c++] = bin2hex(atoi(sbin));
 				memset(sbin, 0, 4);
 				k = 0;
 			}
@@ -162,4 +159,9 @@ extern DOTS_API int initMatrix(Matrix *mat, size_t m, size_t n)
 		mat->map[i] = row;
 	}
 	return 0;
+}
+
+void write(FILE *fp, const char *hex, const wchar_t *name)
+{
+
 }

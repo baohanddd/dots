@@ -20,5 +20,7 @@ size_t** arr2d(size_t m, size_t n);
 char* matrix2hex(const Matrix *mat);
 static char bin2hex(int n);
 
+void write(FILE*, const char *hex, const wchar_t *name);
+
 
 #endif	// __DOTS_MATRIX__
