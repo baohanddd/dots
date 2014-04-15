@@ -24,5 +24,3 @@
 #include "bmp.h"
 #include "carve.h"
 #include "matrix.h"
-#include "ocrt.h"
-#include "tools.h"

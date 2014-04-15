@@ -41,7 +41,7 @@ next(DotMatrixPot *pot, const Matrix *img, const Matrix *font)
 	return 1;
 }
 
-char* matrix2hex(const Matrix *mat)
+char* mat2hex(const Matrix *mat)
 {
 	char sbin[4], *hex;
 	size_t i, j, c = 0, k = 0;
@@ -62,8 +62,7 @@ char* matrix2hex(const Matrix *mat)
 	return hex;
 }
 
-int 
-getMatrix(const PALLET *pal, Matrix *dm) {
+int getMatrix(const PALLET *pal, Matrix *dm) {
 	RGB *color;
 	size_t points = pal->info->bmiHeader.biSizeImage / sizeof(RGB);
 	size_t rows = points / pal->info->bmiHeader.biWidth;
@@ -89,15 +88,13 @@ getMatrix(const PALLET *pal, Matrix *dm) {
 	return 0;
 }
 
-void
-freeMatrix(Matrix *dm)
+void freeMatrix(Matrix *dm)
 {
 	for (size_t r = 0; r < dm->r; ++r) free(dm->map[r]);
 	free(dm->map);
 }
 
-void
-dotmat2File(const Matrix *dm, FILE* fp)
+void dotmat2File(const Matrix *dm, FILE* fp)
 {
 	for (size_t i = 0; i < dm->r; ++i) {
 		for (size_t j = 0; j < dm->c; ++j) fprintf(fp, "%d", dm->map[i][j]);
@@ -172,22 +169,97 @@ static char bin2hex(int n) /* Function to convert binary to hexadecimal. */
 	return hex;
 }
 
-extern DOTS_API int initMatrix(Matrix *mat, size_t m, size_t n)
-{
-	int i, j;
-	size_t *row;
-	mat->r = m; mat->c = n;
-	if ((mat->map = (size_t**)malloc(sizeof(size_t*)* m)) == NULL) return 3;
-	for (i = 0; i < m; ++i) {
-		if ((row = (size_t*)malloc(sizeof(size_t)*n)) == NULL) return 3;
-		memset(row, 0, sizeof(int)*n);
-		for (j = 0; j < n; ++j) { row[j] = j % 2; }
-		mat->map[i] = row;
-	}
-	return 0;
-}
-
 void write(FILE *fp, const char *hex, const char *name)
 {
 	fprintf(fp, "%s|%s\n", hex, name);
+}
+
+Matrix hex2mat(char hex[], FontSize *size)
+{
+	size_t idx;
+	Matrix mat = matrix(size->h, size->w);
+	BinaryString bs = hex2sbin(hex);
+	// printf("bs->sbin = %s\n", bs->sbin);
+	for (size_t i = 0; i < size->h; ++i) {
+		for (size_t j = 0; j < size->w; ++j) {
+			idx = i*size->w + j;
+			if (idx == bs.len - 1) goto RETURNED;
+			mat.map[i][j] = (bs.sbin[idx] == '0') ? 0 : 1;
+			// printf("mat.map[%d][%d] = %d\n", i, j, mat.map[i][j]);
+		}
+	}
+RETURNED:
+	return mat;
+}
+
+static BinaryString hex2sbin(char hex[])
+{
+	BinaryString bs;
+	char c, *tmp;
+	bs.len = 0;
+	bs.sbin = string(strlen(hex) * 4 + 1);
+
+	while ((c = *(hex++)) != '\0') {
+		tmp = hex2bin(c);
+		while (*tmp != '\0') bs.sbin[bs.len++] = *tmp++;
+	}
+
+	bs.sbin[bs.len++] = '\0';
+	// printf("%s\n", bs.sbin);
+
+	return bs;
+}
+
+static char* hex2bin(char hex)   /* Function to convert hexadecimal to binary. */
+{
+	char bin[5], *binary = bin;
+	if (hex == '0') binary = "0000\0";
+	if (hex == '1') binary = "0001\0";
+	if (hex == '2') binary = "0010\0";
+	if (hex == '3') binary = "0011\0";
+	if (hex == '4') binary = "0100\0";
+	if (hex == '5') binary = "0101\0";
+	if (hex == '6') binary = "0110\0";
+	if (hex == '7') binary = "0111\0";
+	if (hex == '8') binary = "1000\0";
+	if (hex == '9') binary = "1001\0";
+	if (hex == 'A' || hex == 'a') binary = "1010\0";
+	if (hex == 'B' || hex == 'b') binary = "1011\0";
+	if (hex == 'C' || hex == 'c') binary = "1100\0";
+	if (hex == 'D' || hex == 'd') binary = "1101\0";
+	if (hex == 'E' || hex == 'e') binary = "1110\0";
+	if (hex == 'F' || hex == 'f') binary = "1111\0";
+
+	return binary;
+}
+
+char* string(size_t len)
+{
+	char *s;
+	if ((s = (char*)malloc(sizeof(char)*len)) == NULL) return NULL;
+	return s;
+}
+
+Matrix matrix(size_t r, size_t c)
+{
+	Matrix mat;
+
+	mat.r = r;
+	mat.c = c;
+	mat.map = arr2d(r, c);
+
+	return mat;
+}
+
+size_t** arr2d(size_t m, size_t n)
+{
+	size_t **map, *row;
+
+	if ((map = (size_t**)malloc(sizeof(size_t*)*m)) == NULL) return NULL;
+	for (size_t i = 0; i < m; ++i) {
+		if ((row = (size_t*)malloc(sizeof(size_t)*n)) == NULL) return NULL;
+		memset(row, 0, sizeof(size_t)*n);
+		map[i] = row;
+	}
+	return map;
 }

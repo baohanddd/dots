@@ -19,11 +19,9 @@ typedef struct {
 } FontSize;
 
 extern DOTS_API void say_hello();
-extern DOTS_API int initMatrix(Matrix *mat, size_t m, size_t n);
-extern DOTS_API Matrix hex2mat(char hex[], FontSize *size);
-extern DOTS_API void printMatrix(Matrix mat);
-
-extern DOTS_API int ocrFromBMP(wchar_t *filename);
 extern DOTS_API void BMP2DotMatrix(_TCHAR* bmp, _TCHAR* op, _TCHAR* hex, _TCHAR* variation);
+
+void RGB_diff(_TCHAR *rgb1, _TCHAR *rgb2);
+void BMP2RGB(_TCHAR *, _TCHAR *);
 
 #endif	// __DOTS__

@@ -25,25 +25,23 @@ int getInfo(PALLET* pal, FILE* fp);
 
 int getColors(PALLET* pal, FILE* fp);
 
-int freePallet(PALLET* pal);
+int free(PALLET* pal);
 
-int	/* O - 0 = success, -1 = failure */
-saveBMP2file(const _TCHAR *filename, PALLET *pal);
+/* O - 0 = success, -1 = failure */
+int	saveBMP2file(const _TCHAR *filename, PALLET *pal);
 
+RGB wchar2RGB(const _TCHAR*);
 
+static int str2hex(const TCHAR *value);
 
-RGB _tchar2RGB(_TCHAR*);
-int _hex2int(const TCHAR *value);
+/* O - 0 = Out of fault tolerant, 1 = Inside of fault tolerant */
+int	colorCmp(RGB *one, RGB	*other, double variation);
 
-int						/* O - 0 = Out of fault tolerant, 1 = Inside of fault tolerant */
-color_cmp(RGB *one,		/* I - One color */
-RGB	*other,				/* I - Other color */
-double variation);		/* I - fault tolerant */
+/* Convert bmp into an .au file used to searching in FastFind */
+void rgb2file(PALLET *pal, FILE *fp);
 
-int getMatrix(const PALLET *pal, Matrix *dm);
-void freeMatrix(Matrix *dm);
-void dotmat2File(const Matrix *dm, FILE* fp);
+void thresholding(PALLET* pal, RGB *base, double variation);
 
-int matrixFromFile(wchar_t *filename, Matrix *mat);
+void dotmatrix(PALLET* pal, FILE* fp);	
 
 #endif

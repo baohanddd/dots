@@ -52,15 +52,15 @@ int getColors(PALLET* pal, FILE* fp) {
 	return 1;
 }
 
-int freePallet(PALLET* pal) {
+int free(PALLET* pal) 
+{
 	free(pal->info);
 	free(pal->colors);
 	return 0;
 }
 
 int										/* O - 0 = success, -1 = failure */
-saveBMP2file(const _TCHAR *filename,	/* I - File to load */
-PALLET *pal)							/* I - Bitmap information */
+saveBMP2file(const _TCHAR *filename, PALLET *pal)			
 {
 	FILE             *fp;				/* Open file pointer */
 	int              size,				/* Size of file */
@@ -141,4 +141,114 @@ PALLET *pal)							/* I - Bitmap information */
 	fclose(fp);
 	printf("File write successfully\n");
 	return (0);
+}
+
+RGB wchar2RGB(const _TCHAR* hexstr) 
+{
+	RGB color;
+	int hex = str2hex(hexstr);
+
+	color.red = ((hex >> 16) & 0xFF);    // Extract the RR byte
+	color.green = ((hex >> 8) & 0xFF);   // Extract the GG byte
+	color.blue = ((hex)& 0xFF);          // Extract the BB byte
+
+	return color;
+}
+
+static int str2hex(const TCHAR *value)
+{
+	struct CHexMap
+	{
+		TCHAR chr;
+		int value;
+	};
+	const int HexMapL = 16;
+	CHexMap HexMap[HexMapL] =
+	{
+		{ '0', 0 }, { '1', 1 },
+		{ '2', 2 }, { '3', 3 },
+		{ '4', 4 }, { '5', 5 },
+		{ '6', 6 }, { '7', 7 },
+		{ '8', 8 }, { '9', 9 },
+		{ 'A', 10 }, { 'B', 11 },
+		{ 'C', 12 }, { 'D', 13 },
+		{ 'E', 14 }, { 'F', 15 }
+	};
+
+	TCHAR *mstr = _tcsdup(value);
+	TCHAR *s = mstr;
+	int result = 0;
+	if (*s == '0' && *(s + 1) == 'x') s += 2;
+	BOOL firsttime = 1;
+	while (*s != '\0')
+	{
+		BOOL found = 0;
+		for (int i = 0; i < HexMapL; i++)
+		{
+			if (*s == HexMap[i].chr)
+			{
+				if (!firsttime) result <<= 4;
+				result |= HexMap[i].value;
+				found = 1;
+				break;
+			}
+		}
+		if (!found) break;
+		s++;
+		firsttime = 0;
+	}
+	free(mstr);
+	return result;
+}
+
+int	colorCmp(RGB *one,	RGB	*other,	double variation)
+{
+	double r = one->red - other->red;
+	double g = one->green - other->green;
+	double b = one->blue - other->blue;
+
+	return sqrt(abs(pow(r, 2) + pow(g, 2) + pow(b, 2))) <= variation;
+}
+
+void rgb2file(PALLET* pal, FILE* fp) 
+{
+	RGB* rgb;
+	size_t points = pal->info->bmiHeader.biSizeImage / sizeof(RGB);
+	for (size_t i = 0; i < points; ++i) {
+		rgb = &pal->colors[i];
+		fprintf(fp, "FFAddColor(0x%02x%02x%02x)\n", rgb->red, rgb->green, rgb->blue);
+	}
+}
+
+void thresholding(PALLET* pal, RGB *base, double variation)	
+{
+	RGB *other;
+	printf("variation = %f\n", variation);
+	size_t points = pal->info->bmiHeader.biSizeImage / sizeof(RGB);
+	for (size_t i = 0; i < points; ++i) {
+		other = &pal->colors[i];
+		colorCmp(base, other, variation) == 1 ?
+			other->blue = other->green = other->red = 0 :
+			other->blue = other->green = other->red = 255;
+	}
+}
+
+void
+dotmatrix(PALLET* pal, FILE* fp)
+{
+	RGB *color;
+	size_t points = pal->info->bmiHeader.biSizeImage / sizeof(RGB);
+	size_t rows = points / pal->info->bmiHeader.biWidth;
+	size_t i;
+	size_t r = 0;
+
+	for (size_t m = rows; m != 0; --m) {
+		for (size_t n = 0; n < pal->info->bmiHeader.biWidth; ++n) {
+			i = (m - 1) * pal->info->bmiHeader.biWidth + n;
+			color = &pal->colors[i];
+			if (color->blue == 0) fprintf(fp, "1");
+			else fprintf(fp, "0");
+			if (++r % pal->info->bmiHeader.biWidth == 0) fprintf(fp, "\n");
+		}
+	}
 }
