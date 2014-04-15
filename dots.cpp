@@ -50,7 +50,6 @@ extern DOTS_API void BMP2DotMatrix(_TCHAR* bmp, _TCHAR* op, _TCHAR* hex, _TCHAR*
 	const unsigned int NAME_LEN = 200;
 	PALLET pal;
 	Matrix dm, block;
-	Fonts fonts;
 	DotMatrixPot start, corner, end;
 	start.r = start.c = 0;
 	FontSize fs, *size = &fs; size->h = size->w = 13;
@@ -74,10 +73,7 @@ extern DOTS_API void BMP2DotMatrix(_TCHAR* bmp, _TCHAR* op, _TCHAR* hex, _TCHAR*
 
 	thresholding(&pal, &wchar2RGB(hex), tolerance);
 
-	if (getMatrix(&pal, &dm) != 0) {
-		printf("Can not read dot matrix from pallet\n");
-		return;
-	}
+	dm = matrix(&pal);
 
 	free(&pal);
 	fclose(fp);
@@ -97,12 +93,12 @@ extern DOTS_API void BMP2DotMatrix(_TCHAR* bmp, _TCHAR* op, _TCHAR* hex, _TCHAR*
 		printf("Please input a name to describe the matrix:\n");
 		gets_s(name, NAME_LEN);
 		write(fp, mat_hex, name);
-		freeMatrix(&block);
+		free(&block);
 		node = node->next;
 	}
 
 	freeLink(head);
-	freeMatrix(&dm);
+	free(&dm);
 	fclose(fp);
 
 	printf("Program finished.\n");
@@ -110,4 +106,108 @@ extern DOTS_API void BMP2DotMatrix(_TCHAR* bmp, _TCHAR* op, _TCHAR* hex, _TCHAR*
 
 ERR:
 	printf("Fails to carve.\n");
+}
+
+void print(DotMatrixPot *pot)
+{
+	printf("start->r = %d, start->c = %d\n", pot->r, pot->c);
+}
+
+void print(DotMatrixRange *range)
+{
+	DotMatrixRange *node;
+	node = range;
+	while (node != NULL) {
+		printf("\nRange->cpl:\n");
+		print(&node->cpl);
+		printf("Range->cpr:\n");
+		print(&node->cpr);
+		node = node->next;
+	}
+	printf("\n");
+}
+
+void print(Matrix *mat)
+{
+	printf("mat->c = %d\n", mat->c);
+	printf("mat->r = %d\n", mat->r);
+
+	for (size_t i = 0; i < mat->r; ++i) {
+		for (size_t j = 0; j < mat->c; ++j) printf("%d", mat->map[i][j]);
+		printf("\n");
+	}
+}
+
+void write(FILE *fp, const Matrix block)
+{
+	const Matrix *dm = &block;
+	for (size_t i = 0; i < dm->r; ++i) {
+		for (size_t j = 0; j < dm->c; ++j) fprintf(fp, "%d", dm->map[i][j]);
+		fprintf(fp, "\n");
+	}
+}
+
+void write(FILE *fp, const char *hex, const char *name)
+{
+	fprintf(fp, "%s|%s\n", hex, name);
+}
+
+/* Initialize methods below... */
+char* string(size_t len)
+{
+	char *s;
+	if ((s = (char*)malloc(sizeof(char)*len)) == NULL) return NULL;
+	return s;
+}
+
+Matrix matrix(const PALLET *pal) {
+	RGB *color;
+	size_t points = pal->info->bmiHeader.biSizeImage / sizeof(RGB);
+	size_t rows = points / pal->info->bmiHeader.biWidth;
+	Matrix mat = matrix(rows, pal->info->bmiHeader.biWidth), *dm = &mat;
+	size_t i;
+
+	for (size_t m = rows; m != 0; --m) {
+		for (size_t n = 0; n < pal->info->bmiHeader.biWidth; ++n) {
+			i = (m - 1) * pal->info->bmiHeader.biWidth + n;
+			color = &pal->colors[i];
+			if (color->blue == 0) dm->map[rows - m][n] = 1;
+		}
+	}
+	return mat;
+}
+
+Matrix matrix(size_t r, size_t c)
+{
+	Matrix mat;
+
+	mat.r = r;
+	mat.c = c;
+	mat.map = arr2d(r, c);
+
+	return mat;
+}
+
+size_t** arr2d(size_t m, size_t n)
+{
+	size_t **map, *row;
+
+	if ((map = (size_t**)malloc(sizeof(size_t*)*m)) == NULL) goto ERR_CAN_NOT_ALLOCATE_MEM;
+	for (size_t i = 0; i < m; ++i) {
+		if ((row = (size_t*)malloc(sizeof(size_t)*n)) == NULL) goto ERR_CAN_NOT_ALLOCATE_MEM;
+		memset(row, 0, sizeof(size_t)*n);
+		map[i] = row;
+	}
+	return map;
+
+ERR_CAN_NOT_ALLOCATE_MEM:
+	fprintf(stderr, "Can not allocate any memory for create new matrix...");
+	exit(3);
+}
+
+/* Free methods below... */
+void free(Matrix *dm)
+{
+	for (size_t r = 0; r < dm->r; ++r) free(dm->map[r]);
+	free(dm->map);
 }

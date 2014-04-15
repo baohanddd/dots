@@ -62,6 +62,7 @@ char* mat2hex(const Matrix *mat)
 	return hex;
 }
 
+/*
 int getMatrix(const PALLET *pal, Matrix *dm) {
 	RGB *color;
 	size_t points = pal->info->bmiHeader.biSizeImage / sizeof(RGB);
@@ -87,20 +88,7 @@ int getMatrix(const PALLET *pal, Matrix *dm) {
 	}
 	return 0;
 }
-
-void freeMatrix(Matrix *dm)
-{
-	for (size_t r = 0; r < dm->r; ++r) free(dm->map[r]);
-	free(dm->map);
-}
-
-void dotmat2File(const Matrix *dm, FILE* fp)
-{
-	for (size_t i = 0; i < dm->r; ++i) {
-		for (size_t j = 0; j < dm->c; ++j) fprintf(fp, "%d", dm->map[i][j]);
-		fprintf(fp, "\n");
-	}
-}
+*/
 
 static char bin2hex(int n) /* Function to convert binary to hexadecimal. */
 {
@@ -169,11 +157,6 @@ static char bin2hex(int n) /* Function to convert binary to hexadecimal. */
 	return hex;
 }
 
-void write(FILE *fp, const char *hex, const char *name)
-{
-	fprintf(fp, "%s|%s\n", hex, name);
-}
-
 Matrix hex2mat(char hex[], FontSize *size)
 {
 	size_t idx;
@@ -231,35 +214,4 @@ static char* hex2bin(char hex)   /* Function to convert hexadecimal to binary. *
 	if (hex == 'F' || hex == 'f') binary = "1111\0";
 
 	return binary;
-}
-
-char* string(size_t len)
-{
-	char *s;
-	if ((s = (char*)malloc(sizeof(char)*len)) == NULL) return NULL;
-	return s;
-}
-
-Matrix matrix(size_t r, size_t c)
-{
-	Matrix mat;
-
-	mat.r = r;
-	mat.c = c;
-	mat.map = arr2d(r, c);
-
-	return mat;
-}
-
-size_t** arr2d(size_t m, size_t n)
-{
-	size_t **map, *row;
-
-	if ((map = (size_t**)malloc(sizeof(size_t*)*m)) == NULL) return NULL;
-	for (size_t i = 0; i < m; ++i) {
-		if ((row = (size_t*)malloc(sizeof(size_t)*n)) == NULL) return NULL;
-		memset(row, 0, sizeof(size_t)*n);
-		map[i] = row;
-	}
-	return map;
 }

@@ -1,18 +1,6 @@
 #ifndef _BMP_
 #define _BMP_
 
-typedef struct {
-	BYTE blue;
-	BYTE green;
-	BYTE red;
-} RGB;
-
-typedef struct {
-	BITMAPFILEHEADER header;
-	BITMAPINFO *info;
-	RGB *colors;
-} PALLET;
-
 FILE* fopen(wchar_t *filename);
 
 int getPallet(PALLET* pal, FILE* fp);

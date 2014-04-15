@@ -166,46 +166,6 @@ height(const DotMatrixRange *range)
 	return h;
 }
 
-static void
-print(DotMatrixPot *pot)
-{
-	printf("start->r = %d, start->c = %d\n", pot->r, pot->c);
-}
-
-static void
-print(DotMatrixRange *range)
-{
-	DotMatrixRange *node;
-	node = range;
-	while (node != NULL) {
-		printf("\nRange->cpl:\n");
-		print(&node->cpl);
-		printf("Range->cpr:\n");
-		print(&node->cpr);
-		node = node->next;
-	}
-	printf("\n");
-}
-
-void
-print(Matrix *mat)
-{
-	printf("mat->c = %d\n", mat->c);
-	printf("mat->r = %d\n", mat->r);
-
-	for (size_t i = 0; i < mat->r; ++i) {
-		for (size_t j = 0; j < mat->c; ++j) printf("%d", mat->map[i][j]);
-		printf("\n");
-	}
-}
-
-void
-free(Fonts fonts)
-{
-	for (size_t i = 0; i < fonts.num; ++i) free(fonts.mat[i]);
-	free(fonts.mat);
-}
-
 void 
 freeLink(DotMatrixRange *head)
 {
@@ -217,44 +177,4 @@ freeLink(DotMatrixRange *head)
 		free(node);
 		node = next;
 	}
-}
-
-void 
-write(FILE* fp, const Fonts fonts)
-{
-	Matrix *dm;
-
-	for (size_t m = 0; m < fonts.num; ++m) {
-		dm = fonts.mat[m];
-		for (size_t i = 0; i < dm->r; ++i) {
-			for (size_t j = 0; j < dm->c; ++j) fprintf(fp, "%d", dm->map[i][j]);
-			fprintf(fp, "\n");
-		}
-	}
-}
-
-void
-write(FILE *fp, const Matrix block)
-{
-	const Matrix *dm = &block;
-	printf("mat->c = %d\n", dm->c);
-	printf("mat->r = %d\n", dm->r);
-	for (size_t i = 0; i < dm->r; ++i) {
-		for (size_t j = 0; j < dm->c; ++j) fprintf(fp, "%d", dm->map[i][j]);
-		fprintf(fp, "\n");
-	}
-}
-
-static size_t** 
-arr2d(size_t m, size_t n)
-{
-	size_t **map, *row;
-
-	if ((map = (size_t**)malloc(sizeof(size_t*)*m)) == NULL) return NULL;
-	for (size_t i = 0; i < m; ++i) {
-		if ((row = (size_t*)malloc(sizeof(size_t)*n)) == NULL) return NULL;
-		memset(row, 0, sizeof(size_t)*n);
-		map[i] = row;
-	}
-	return map;
 }
