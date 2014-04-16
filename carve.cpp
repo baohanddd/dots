@@ -22,7 +22,7 @@ carve(const Matrix *dm, const DotMatrixRange *range)
 }
 
 DotMatrixRange*
-find(Matrix* dm, DotMatrixPot* start, FontSize *size)
+find(Matrix* dm, DotMatrixPot* start, FontSize *size, size_t *found)
 {
 	DotMatrixRange range, *head = NULL, *current, *last = &range;
 
@@ -37,11 +37,9 @@ find(Matrix* dm, DotMatrixPot* start, FontSize *size)
 		if (head == NULL) head = current;
 		else last->next = current;
 		last = current;
-
+		(*found)++;
 	} while(1);
 
-	// printf("Output ranges:\n");
-	// print(head);
 	return head;
 }
 

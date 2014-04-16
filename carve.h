@@ -1,7 +1,7 @@
 #ifndef __CARVE__
 #define __CARVE__
 
-DotMatrixRange* find(Matrix* dm, DotMatrixPot* start, FontSize *size);
+DotMatrixRange* find(Matrix* dm, DotMatrixPot* start, FontSize *size, size_t *found);
 Matrix carve(const Matrix*, const DotMatrixRange*);
 
 static int carveRange(const Matrix* dm, DotMatrixRange *range, DotMatrixPot *start, const FontSize *size);

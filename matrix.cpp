@@ -157,7 +157,7 @@ static char bin2hex(int n) /* Function to convert binary to hexadecimal. */
 	return hex;
 }
 
-Matrix hex2mat(char hex[], FontSize *size)
+Matrix hex2mat(char hex[], const FontSize *size)
 {
 	size_t idx;
 	Matrix mat = matrix(size->h, size->w);

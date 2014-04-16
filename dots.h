@@ -8,9 +8,17 @@
 #endif
 
 typedef struct {
+	BYTE blue;
+	BYTE green;
+	BYTE red;
+} RGB;
+
+typedef struct Matrix {
 	size_t c;
 	size_t r;
-	size_t** map;
+	size_t **map;
+	char *name;
+	Matrix *next;
 } Matrix;
 
 typedef struct {
@@ -40,12 +48,6 @@ typedef struct DotMatrixRange {
 } DotMatrixRange;
 
 typedef struct {
-	BYTE blue;
-	BYTE green;
-	BYTE red;
-} RGB;
-
-typedef struct {
 	BITMAPFILEHEADER header;
 	BITMAPINFO *info;
 	RGB *colors;
@@ -53,6 +55,7 @@ typedef struct {
 
 extern DOTS_API void say_hello();
 extern DOTS_API void BMP2DotMatrix(_TCHAR* bmp, _TCHAR* op, _TCHAR* hex, _TCHAR* variation);
+extern DOTS_API void readFontLib(const _TCHAR* lib);
 
 void RGB_diff(_TCHAR *rgb1, _TCHAR *rgb2);
 void BMP2RGB(_TCHAR *, _TCHAR *);
@@ -68,9 +71,15 @@ void write(FILE*, const char *hex, const char *name);	// Record font hex string 
 
 // Init methods...
 size_t** arr2d(size_t m, size_t n);
+size_t** arrrow(size_t m);
+size_t* arrcol(size_t n);
 char* string(size_t len);
 Matrix matrix(size_t r, size_t c);
 Matrix matrix(const PALLET *pal);
+Matrix matrix(FILE*);
+Matrix matrix(const char *line, size_t len, const FontSize *size);
+FontSize fontSize(size_t w, size_t h);
+
 
 // Free methods...
 void free(Matrix *dm);
